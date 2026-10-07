@@ -24,9 +24,8 @@ Copy `.env.example` to `.env` and fill it in:
 ```env
 DISCORD_TOKEN=your-discord-bot-token
 
-# One key, or several comma-separated keys in GEMINI_API_KEYS. Set at least one.
-GEMINI_API_KEY=your-gemini-api-key
-GEMINI_API_KEYS=
+# One key, or several separated by commas. They are rotated between requests.
+GEMINI_API_KEYS=first-gemini-api-key,second-gemini-api-key
 
 # Optional. Set this while testing so /prompt shows up immediately in one server.
 # Leave it empty for a global command (can take up to an hour to appear).
@@ -54,7 +53,7 @@ Run `run.bat`. It creates a virtual environment and installs the requirements on
 
 ### Manually
 
-Requires Python 3.10 or newer.
+Requires Python 3.12 or newer.
 
 ```sh
 python -m venv .venv

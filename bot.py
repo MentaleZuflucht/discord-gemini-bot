@@ -157,12 +157,9 @@ def main() -> None:
     load_dotenv()
     setup_logging()
     token = _required_env("DISCORD_TOKEN")
-    api_keys = parse_api_keys(
-        os.environ.get("GEMINI_API_KEY", ""),
-        os.environ.get("GEMINI_API_KEYS", ""),
-    )
+    api_keys = parse_api_keys(os.environ.get("GEMINI_API_KEYS", ""))
     if not api_keys:
-        logger.critical("Missing GEMINI_API_KEY or GEMINI_API_KEYS. Copy .env.example to .env and fill it in.")
+        logger.critical("Missing GEMINI_API_KEYS. Copy .env.example to .env and fill it in.")
         raise SystemExit(1)
     logger.info("Loaded %s Gemini API key(s).", len(api_keys))
     raw_guild = os.environ.get("DISCORD_GUILD_ID", "").strip()
