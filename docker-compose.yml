@@ -1,0 +1,13 @@
+services:
+  discord-gemini-bot:
+    image: ghcr.io/mentalezuflucht/discord-gemini-bot:latest
+    container_name: discord-gemini-bot
+    restart: unless-stopped
+    env_file: .env
+    volumes:
+      - logs:/app/logs
+    labels:
+      - com.centurylinklabs.watchtower.enable=true
+
+volumes:
+  logs:
