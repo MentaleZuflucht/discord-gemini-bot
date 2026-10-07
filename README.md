@@ -27,7 +27,7 @@ DISCORD_TOKEN=your-discord-bot-token
 # One key, or several separated by commas. They are rotated between requests.
 GEMINI_API_KEYS=first-gemini-api-key,second-gemini-api-key
 
-# Optional. Set this while testing so /prompt shows up immediately in one server.
+# Optional. Set this so /prompt shows up immediately in one server.
 # Leave it empty for a global command (can take up to an hour to appear).
 DISCORD_GUILD_ID=
 
