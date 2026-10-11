@@ -21,16 +21,17 @@ DAILY_QUOTA_COOLDOWN_SECONDS = 1800
 
 QUOTA_MESSAGE = "The model's free quota is used up for now."
 
-# Best free text models first, from Google's pricing page (2026-10-11).
+# Free text models from Google's pricing page (2026-10-11), smartest first by
+# Artificial Analysis Intelligence Index v4.3.2. Ties go to the faster model.
 PREFERRED_FREE_MODELS = (
-    "gemini-3.8-flash",
-    "gemini-3.6-flash",
-    "gemini-3-flash-preview",
-    "gemini-2.5-pro",
-    "gemini-2.5-flash",
-    "gemini-3.5-flash-lite",
-    "gemini-3.1-flash-lite",
-    "gemini-2.5-flash-lite",
+    "gemini-3.8-flash",  # 41
+    "gemini-3.6-flash",  # 34
+    "gemini-3-flash-preview",  # 26
+    "gemini-3.5-flash-lite",  # 22
+    "gemini-3.1-flash-lite",  # 16
+    "gemini-2.5-pro",  # 16
+    "gemini-2.5-flash",  # 13
+    "gemini-2.5-flash-lite",  # 9
 )
 
 # Specialty endpoints that support generateContent but are not chat models.
