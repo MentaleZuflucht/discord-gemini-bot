@@ -21,13 +21,10 @@ DAILY_QUOTA_COOLDOWN_SECONDS = 1800
 
 QUOTA_MESSAGE = "The model's free quota is used up for now."
 
-# Best free text models first, from Google's pricing page (2026-09-24).
-# Pro models that are paid-only are intentionally absent.
+# Best free text models first, from Google's pricing page (2026-10-11).
 PREFERRED_FREE_MODELS = (
     "gemini-3.8-flash",
-    "gemini-3.7-flash",
     "gemini-3.6-flash",
-    "gemini-3.5-flash",
     "gemini-3-flash-preview",
     "gemini-2.5-pro",
     "gemini-2.5-flash",
