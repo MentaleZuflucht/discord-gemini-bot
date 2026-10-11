@@ -19,6 +19,7 @@ logger = logging.getLogger("bot")
 MAX_PROMPT_LENGTH = 2000
 EMBED_DESCRIPTION_LIMIT = 4096
 EMBED_COLOR = 0x7C6AF7
+UNKNOWN_INTERACTION = 10062
 GEMINI_ICON_URL = (
     "https://www.gstatic.com/lamda/images/gemini_sparkle_4g_512_lt_f94943af3be039176192d.png"
 )
@@ -61,8 +62,16 @@ class PromptBot(discord.Client):
         error: app_commands.AppCommandError,
     ) -> None:
         command = interaction.command.qualified_name if interaction.command else "unknown"
+        original = getattr(error, "original", error)
+        if isinstance(original, discord.NotFound) and original.code == UNKNOWN_INTERACTION:
+            # Discord drops interactions not acknowledged within 3 seconds; there is nothing left to reply to.
+            logger.warning("Slash command /%s expired before it could be acknowledged.", command)
+            return
         logger.error("Slash command /%s failed.", command, exc_info=error)
-        await _send(interaction, "Something went wrong while handling that command.")
+        try:
+            await _send(interaction, "Something went wrong while handling that command.")
+        except discord.HTTPException as exc:
+            logger.warning("Could not send the error message for /%s: %s", command, exc)
 
 
 bot_client: PromptBot | None = None
