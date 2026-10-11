@@ -14,7 +14,10 @@ API_ROOT = "https://generativelanguage.googleapis.com/v1beta"
 MODEL_CACHE_SECONDS = 600
 REQUEST_TIMEOUT_SECONDS = 45
 MAX_MODELS_TO_TRY = 4
-MAX_OUTPUT_TOKENS = 1024
+# Thinking tokens count toward this, so leave room beyond the short reply.
+# Output tokens do not count against the free quota.
+MAX_OUTPUT_TOKENS = 8192
+THINKING_LEVEL = "MEDIUM"
 # How long a model is skipped for a key after it runs out of quota.
 QUOTA_COOLDOWN_SECONDS = 60
 DAILY_QUOTA_COOLDOWN_SECONDS = 1800
@@ -357,7 +360,7 @@ class _KeyExhausted(Exception):
 def _request_body(prompt: str, *, include_thinking: bool) -> dict:
     generation_config: dict = {"maxOutputTokens": MAX_OUTPUT_TOKENS}
     if include_thinking:
-        generation_config["thinkingConfig"] = {"thinkingLevel": "LOW"}
+        generation_config["thinkingConfig"] = {"thinkingLevel": THINKING_LEVEL}
     return {
         "systemInstruction": {"parts": [{"text": SYSTEM_INSTRUCTION}]},
         "contents": [{"role": "user", "parts": [{"text": prompt}]}],
