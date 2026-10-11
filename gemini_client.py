@@ -277,7 +277,7 @@ class GeminiClient:
                 raise GeminiError("Could not list Gemini models.") from exc
             if response.status_code in {401, 403} or _key_rejected(response):
                 raise _KeyExhausted("This API key cannot list models.")
-            if response.status_code != 200:
+            if response.status_code != 200 or not isinstance(body, dict):
                 raise GeminiError("Could not list Gemini models.")
             payloads.extend(body.get("models") or [])
             page_token = body.get("nextPageToken") or ""
@@ -329,6 +329,8 @@ class GeminiClient:
             body = response.json()
         except ValueError as exc:
             raise _SkipModel("The model sent an unreadable reply.") from exc
+        if not isinstance(body, dict):
+            raise _SkipModel("The model sent an unreadable reply.")
         return _reply_text(body)
 
     def _headers(self, api_key: str) -> dict[str, str]:
@@ -398,12 +400,7 @@ def _public_skip_reason(response: httpx.Response) -> str:
 
 def _quota_cooldown(response: httpx.Response) -> float:
     """Seconds to leave a model alone after a quota error, using Google's retry hint."""
-    try:
-        error = response.json().get("error") or {}
-    except (ValueError, AttributeError):
-        return QUOTA_COOLDOWN_SECONDS
-    if not isinstance(error, dict):
-        return QUOTA_COOLDOWN_SECONDS
+    error = _error_body(response)
     details = error.get("details")
     if not isinstance(details, list):
         details = []
@@ -419,15 +416,21 @@ def _quota_cooldown(response: httpx.Response) -> float:
     return QUOTA_COOLDOWN_SECONDS
 
 
-def _error_message(response: httpx.Response) -> str:
+def _error_body(response: httpx.Response) -> dict:
     try:
         body = response.json()
     except ValueError:
-        return ""
-    error = body.get("error")
-    if isinstance(error, dict):
-        return str(error.get("message") or error.get("status") or "")
-    return ""
+        return {}
+    # Google sometimes wraps the error object in a one-item list.
+    if isinstance(body, list) and body:
+        body = body[0]
+    error = body.get("error") if isinstance(body, dict) else None
+    return error if isinstance(error, dict) else {}
+
+
+def _error_message(response: httpx.Response) -> str:
+    error = _error_body(response)
+    return str(error.get("message") or error.get("status") or "")
 
 
 def _reply_text(body: dict) -> str:
@@ -435,9 +438,10 @@ def _reply_text(body: dict) -> str:
     if prompt_feedback.get("blockReason"):
         raise GeminiError("The model declined to answer that.")
 
+    # A blocked prompt is final, but an empty reply is worth trying on the next model.
     candidates = body.get("candidates") or []
     if not candidates:
-        raise GeminiError("The model returned no reply.")
+        raise _SkipModel("The model returned no reply.")
 
     candidate = candidates[0]
     finish = str(candidate.get("finishReason") or "")
@@ -452,5 +456,5 @@ def _reply_text(body: dict) -> str:
     ]
     text = "\n".join(piece for piece in texts if piece).strip()
     if not text:
-        raise GeminiError("The model returned an empty reply.")
+        raise _SkipModel("The model returned an empty reply.")
     return text
