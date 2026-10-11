@@ -68,3 +68,12 @@ python -m venv .venv
 ```
 
 The reply shows the answer, your prompt in small text underneath, and the model that answered.
+
+## Tests
+
+The tests fake Gemini and Discord, so they need no keys or network access.
+
+```sh
+.venv/bin/pip install -r requirements-dev.txt   # Windows: .venv\Scripts\pip
+.venv/bin/python -m pytest                      # Windows: .venv\Scripts\python
+```
